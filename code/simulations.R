@@ -93,30 +93,38 @@ png("figs/Fig2_simulations.png", height = 3.5, width = 11.5, units = "in", res =
 dev.off()
 
 ## Calculate effect sizes ####
-# Calculate percent difference in root-to-shoot ratios at end of simulation
-rs100_basic <- exp(basic$lnrs_store[100])
-rs100_plastic <- exp(plastic$lnrs_store[100])
-rs100_evo <- exp(evo_plastic$lnrs_store[100])
 
-round((rs100_basic - rs100_plastic)*100/ rs100_basic,1) # 42.8
-round((rs100_basic - rs100_evo)*100/ rs100_basic,1) # 21.6
-round((rs100_evo - rs100_plastic)*100/ rs100_plastic,1) # 37.2
+# Calculate percent difference in root-to-shoot ratios at end of simulation
+rs100_basic <- exp(basic$lnrs_store[101])
+rs100_plastic <- exp(plastic$lnrs_store[101])
+rs100_evo <- exp(evo_plastic$lnrs_store[101])
+
+# Calculate how much root-to-shoot ratio decreased due to plasticity over 100 years
+rs0_plastic <- exp(plastic$lnrs_store[2])
+round((rs0_plastic - rs100_plastic)*100 / rs0_plastic) # 43
+# Calculate how much root-to-shoot ratio decreased due to evo_plasticity over 100 years
+rs0_evo <- exp(evo_plastic$lnrs_store[2])
+round((rs0_evo - rs100_evo)*100 / rs0_evo) # 22
+
+round((rs100_basic - rs100_plastic)*100/ rs100_basic) # 43
+round((rs100_basic - rs100_evo)*100/ rs100_basic) # 22
+round((rs100_evo - rs100_plastic)*100/ rs100_plastic) # 38
 
 # Calculate percent difference in average vertical accretion rates
 accV_basic <- mean(basic$dzdt_out, na.rm = T)
 accV_plastic <- mean(plastic$dzdt_out, na.rm = T)
 accV_evo <- mean(evo_plastic$dzdt_out, na.rm = T)
 
-round((accV_basic - accV_plastic)*100/accV_basic,1) # 20.8
-round((accV_basic - accV_evo)*100/accV_basic,1) # 12.4
+round((accV_basic - accV_plastic)*100/accV_basic) # 21
+round((accV_basic - accV_evo)*100/accV_basic) # 12
 
 # Calculate percent difference in average carbon accumulation rates
 accC_basic <- mean(basic$carbon, na.rm = T)
 accC_plastic <- mean(plastic$carbon, na.rm = T)
 accC_evo <- mean(evo_plastic$carbon, na.rm = T)
 
-round((accC_basic - accC_plastic)*100/accC_basic,1) # 24.1
-round((accC_basic - accC_evo)*100/accC_basic,1) # 14.2
+round((accC_basic - accC_plastic)*100/accC_basic) # 24
+round((accC_basic - accC_evo)*100/accC_basic) # 14
 
 ## Save model predictions for Figure S2
 list(basic, plastic, evo_plastic) -> simulation_preds

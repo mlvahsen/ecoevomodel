@@ -9,7 +9,7 @@ bg_full <- read_csv(url("https://raw.githubusercontent.com/mlvahsen/BlueGenes/ma
 `%notin%` <- Negate(`%in%`)
 
 # Subset data for levels 1-4, no competition, and remove pots that had no agb
-# Also do this for ONLY ancestral genotypes
+# Also do this for ONLY descendant genotypes
 bg_full %>% 
   filter(level < 5 & comp == 0 & agb_scam > 0 & age == "modern") %>% 
   mutate(root_shoot = total_bg/agb_scam)-> bg_sub
@@ -69,3 +69,7 @@ bg_rs %>%
 png("figs/Fig3_validation.png", width = 8.0, height = 5, res = 300, units = "in")
 validation_plot
 dev.off()
+
+# Get mean observed root-to-shoot ratio at same zstar for plastic scenario
+plastic_obs_mod <- lm(log(root_shoot) ~ z_star, data = bg_rs)
+exp(predict(plastic_obs_mod, newdata = tibble(z_star = preds_2020$zstar_2020[2])))
