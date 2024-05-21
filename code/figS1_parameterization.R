@@ -1,3 +1,33 @@
+# Figure S1 - Plot for depicting how plasticity and environmental sensitivity of
+# selection parameters were derived
+
+# Read in all Blue Genes experimental data. This is the derived dataset that has
+# already been cleaned and formatted.
+bg_full <- read_csv(url("https://raw.githubusercontent.com/mlvahsen/BlueGenes/main/derived_data/All_Trait_Data.csv"))
+
+# Create 'not in' operator
+`%notin%` <- Negate(`%in%`)
+
+# Subset data for levels 1-4, no competition, and remove pots that had no agb
+# Also do this for ONLY ancestral genotypes
+bg_full %>% 
+  filter(level < 5 & comp == 0 & agb_scam > 0 & age == "ancestral") %>% 
+  mutate(root_shoot = total_bg/agb_scam)-> bg_sub
+
+# Filter out pots we don't want because we had to harvest rhizomes or root to
+# shoots don't make sense (r:s > 5 observations have very little agb growth and
+# reflect large rhizomes at set-up so an experimental artifact).
+bg_sub %>% 
+  filter(pot_no %notin% c(165, 176) &
+           root_shoot < 5 & complete.cases(root_shoot)) -> bg_rs
+
+# Create z* column in bg_rs data
+bg_rs %>% 
+  mutate(z_star = (elevation*100 - msl_2019) / (mhw_2019 - msl_2019)) -> bg_rs
+
+# Create ln(root:shoot) column
+bg_rs$ln_rs <- log(bg_rs$root_shoot)
+
 # Plot up plasticity
 bg_rs %>% 
   ggplot(aes(x = z_star, y = ln_rs)) +
@@ -46,13 +76,13 @@ lnrs_opt4 <- predict(quad_mod4, newdata = data.frame(ln_rs = optimal_phenotypes[
 bg_rs %>% 
   ggplot(aes(x = ln_rs, y = agb_scam, color = flooding_level)) +
   geom_point(alpha = 0.8, size = 1.5) +
-  geom_smooth(aes(color = flooding_level), method = "lm", formula = y ~ x + I(x^2), se = F, size = 1.5) +
+  geom_smooth(aes(color = flooding_level), method = "lm", formula = y ~ x + I(x^2), se = F, linewidth = 1.5) +
   xlab("ln(root-to-shoot ratio)") +
   ylab(paste("aboveground biomass (fitness)")) +
-  geom_point(aes(x = optimal_phenotypes[1], y = lnrs_opt1), size = 5, color = "gold") +
-  geom_point(aes(x = optimal_phenotypes[2], y = lnrs_opt2), size = 5, color = "gold") +
-  geom_point(aes(x = optimal_phenotypes[3], y = lnrs_opt3), size = 5, color = "gold") +
-  geom_point(aes(x = optimal_phenotypes[4], y = lnrs_opt4), size = 5, color = "gold") +
+  annotate(geom = "point", x = optimal_phenotypes[1], y = lnrs_opt1, size = 5, color = "gold") +
+  annotate(geom = "point", x = optimal_phenotypes[2], y = lnrs_opt2, size = 5, color = "gold") +
+  annotate(geom = "point", x = optimal_phenotypes[3], y = lnrs_opt3, size = 5, color = "gold") +
+  annotate(geom = "point", x = optimal_phenotypes[4], y = lnrs_opt4, size = 5, color = "gold") +
   theme_bw(base_size = 14) + 
   scale_color_manual(values = c("#bdc9e1","#74a9cf", "#2b8cbe", "#045a8d")) +
   theme(legend.position = "none") +
@@ -95,7 +125,7 @@ tibble(lnrs = c(predict(lnrs_mod_optimal, newdata = data.frame(z_star = seq(-0.1
   scale_color_manual(values = c("black", "gray45")) +
   xlim(-0.1473627,2.3844481)-> d
 
-png("Figs/parameterization_plot_ancestral.png", height = 8.5, width = 9, units = "in", res = 300)
+png("Figs/FigS1_parameterization_plot.png", height = 8.5, width = 9, units = "in", res = 300)
 (d + a + plot_layout(widths = c(2,1))) / (b + c + plot_layout(widths = c(2,1))) +
   plot_layout(heights = c(3,2)) +
   plot_annotation(tag_levels = "a")

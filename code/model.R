@@ -5,14 +5,12 @@ predict_marsh <- function(years, z_init, rs_int, rs_slope, rs_int_opt, rs_slope_
                           q, ssc, n_tides, rho_m, zmaxstar, zminstar, bmax, kr,
                           bg_tr, rho_o, no_plastic = FALSE){
   
-  ## Create storage vectors to hold outputs ##
+  ## Create storage vectors to hold outputs ####
   
   # ln(root-to-shoot ratio)
   lnrs_store <- rep(NA, years)
   # intercept of ln(root-to-shoot ratio) reaction norm
   lnrs_int_store <- rep(NA, years)
-  # intercept of optimal reaction norm
-  lnrs_int_opt_store <- rep(NA, years)
   # inorganic accretion rate
   dsdt_out <- rep(NA, years)
   # organic accretion rate
@@ -29,16 +27,20 @@ predict_marsh <- function(years, z_init, rs_int, rs_slope, rs_int_opt, rs_slope_
   z_vec[1] <- z_init
   # aboveground biomass
   agb_vec <- rep(NA, years)
-  # zstar
-  zstar <- rep(NA, years)
   
   # Set first value of lnrs_int_store to be rs_int (the intercept of the
   # reaction norm)
   lnrs_int_store[1] <- rs_int
-  # Do the same for the intercept for optimal phenotype
-  lnrs_int_opt_store[1] <- rs_int_opt
   
-  # Loop through model accounting for plasticity and evolution
+  ## Z to Z star function ####
+  
+  # Create a function to calculate Z* (relative tidal elevation) from Z
+  z_to_zstar <- function(z, msl, mhw){
+    zstar <- (z - msl) / (mhw - msl)
+    return(zstar)
+  }
+  
+  ## Loop through model accounting for plasticity and evolution ####
   for (t in 1:years){
     
     # Convert current elevation to z* (relative tidal elevation)
@@ -83,21 +85,10 @@ predict_marsh <- function(years, z_init, rs_int, rs_slope, rs_int_opt, rs_slope_
       lnrs_store[t+1] <- rs_int + rs_slope*zstar_set
     }else{
       # Calculate mean phenotype at current z*
-      if(t == 1){
-        lnrs_mean <- rs_int + rs_slope * zstar
-        
-      }else{
-        #lnrs_mean <- lnrs_int_store[t] + rs_slope * zstar
-        lnrs_mean <- rs_int + rs_slope * zstar
-      }
+      lnrs_mean <- rs_int + rs_slope * zstar
       
       # Calculate optimal phenotype at current z*
-      if(t == 1){
-        lnrs_optimal <- rs_int_opt + rs_slope_opt * zstar
-      }else{
-        #lnrs_optimal <- lnrs_int_opt_store[t] + rs_slope_opt * zstar
-        lnrs_optimal <- rs_int_opt + rs_slope_opt * zstar
-      }
+      lnrs_optimal <- rs_int_opt + rs_slope_opt * zstar
       
       # Calculate additive genetic variance
       sigma2a <- h2 * sigma2p
@@ -109,13 +100,9 @@ predict_marsh <- function(years, z_init, rs_int, rs_slope, rs_int_opt, rs_slope_
       # Store new intercept value for mean reaction norm
       lnrs_int_store[t+1] <- lnrs_int_store[t] + lnrs_int_change
       
-      # Store new intercept value for optimal reaction norm
-      #lnrs_int_opt_store[t+1] <- lnrs_int_opt_store[t] + lnrs_int_change
-      
-      # Calculate new root-to-shoot ratio (add change in intercept to )
-      #lnrs_store[t+1] <- lnrs_int_store[t+1] + rs_slope * zstar
+      # Calculate new root-to-shoot ratio (add change in intercept to change due
+      # to plasticity)
       lnrs_store[t+1] <- lnrs_int_store[t+1] + rs_slope * zstar
-      
       
     }
     
@@ -134,12 +121,11 @@ predict_marsh <- function(years, z_init, rs_int, rs_slope, rs_int_opt, rs_slope_
     
     # Update elevation given accretion
     z_vec[t+1] <- z_vec[t] + dzdt_out[t+1]
-    
-    zstar[t] <- zstar
   }
+
+  ## Set outputs ####
   return(list(lnrs_store = lnrs_store,
               lnrs_int_store = lnrs_int_store,
-              lnrs_int_opt_store = lnrs_int_opt_store,
               dsdt_out = dsdt_out,
               dodt_out = dodt_out,
               dzdt_out = dzdt_out,

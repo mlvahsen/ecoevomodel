@@ -118,6 +118,10 @@ accC_evo <- mean(evo_plastic$carbon, na.rm = T)
 round((accC_basic - accC_plastic)*100/accC_basic,1) # 24.1
 round((accC_basic - accC_evo)*100/accC_basic,1) # 14.2
 
+## Save model predictions for Figure S2
+list(basic, plastic, evo_plastic) -> simulation_preds
+write_rds(simulation_preds, "outputs/simulation_preds.rds")
+
 ## Save predictions at t = 2020 for Figure 3 validation plot ####
 tibble(scenario = c("constant", "plastic", "evo_plastic"),
        lnrs_2020 = c(basic$lnrs_store[101],
