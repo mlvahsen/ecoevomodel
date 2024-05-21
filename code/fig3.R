@@ -34,39 +34,39 @@ preds_2020 <- read_rds("outputs/preds_2020.rds")
 
 bg_rs %>% 
   ggplot(aes(x = z_star, y = log(root_shoot))) +
-  geom_point(alpha = 0.5, size = 2) +
+  geom_point(alpha = 0.5, size = 1.5) +
   geom_smooth(method = "lm", se = F, color = "black") +
   # Add predictions from each simulation
   annotate(
     geom = "point",
     x = preds_2020 %>% filter(scenario == "constant") %>% pull(zstar_2020),
     y = preds_2020 %>% filter(scenario == "constant") %>% pull(lnrs_2020),
-    size = 5, shape = 4, stroke = 2, color = "#502688") +
+    size = 3.5, shape = 4, stroke = 2, color = "#502688") +
   annotate(
     geom = "point",
     x = preds_2020 %>% filter(scenario == "plastic") %>% pull(zstar_2020),
     y = preds_2020 %>% filter(scenario == "plastic") %>% pull(lnrs_2020),
-    size = 5, shape = 4, stroke = 2, color = "#8F61DB") +
+    size = 3.5, shape = 4, stroke = 2, color = "#8F61DB") +
   annotate(
     geom = "point",
     x = preds_2020 %>% filter(scenario == "evo_plastic") %>% pull(zstar_2020),
     y = preds_2020 %>% filter(scenario == "evo_plastic") %>% pull(lnrs_2020),
-    size = 5, shape = 4, stroke = 2, color = "#FC90AF") +
+    size = 3.5, shape = 4, stroke = 2, color = "#FC90AF") +
   # Add curved arrows
-  annotate(geom = "curve", x = 0.9, y = 1, xend = 0.6, yend = 0.75, 
+  annotate(geom = "curve", x = 0.9, y = 1, xend = 0.6, yend = 0.80, 
     curvature = .3, arrow = arrow(length = unit(2, "mm")), color = "#502688") +
-  annotate(geom = "curve", x = 0.25, y = 0.75, xend = 0.44, yend = 0.5, 
-    curvature = -.3, arrow = arrow(length = unit(2, "mm")), color = "#FC90AF") +
-  annotate(geom = "curve", x = 0.50, y = -0.20, xend = 0.32, yend = 0.07, 
+  annotate(geom = "curve", x = 0.25, y = 0.85, xend = 0.34, yend = 0.43, 
+    curvature = .3, arrow = arrow(length = unit(2, "mm")), color = "#FC90AF") +
+  annotate(geom = "curve", x = 0.50, y = -0.20, xend = 0.32, yend = 0.05, 
     curvature = -.3, arrow = arrow(length = unit(2, "mm")), color = "#8F61DB") +
-  annotate(geom = "text", x = 1.05, y = 1.01, label = "constant", color = "#502688", size = 5) +
-  annotate(geom = "text", x = 0.02, y = 0.76, label = "evo + plastic", color = "#FC90AF", size = 5) +
-  annotate(geom = "text", x = 0.62, y = -0.18, label = "plastic", color = "#8F61DB", size = 5) +
-  theme_bw(base_size = 14) +
+  annotate(geom = "text", x = 1.16, y = 1.01, label = "constant", color = "#502688", size = 3.5) +
+  annotate(geom = "text", x = 0.12, y = 0.96, label = "evo + plastic", color = "#FC90AF", size = 3.5) +
+  annotate(geom = "text", x = 0.7, y = -0.18, label = "plastic", color = "#8F61DB", size = 3.5) +
+  theme_bw(base_size = 10) +
   labs(y = "ln(root-to-shoot ratio)",
        x = "E* (relative tidal elevation)") -> validation_plot
 
-png("figs/Fig3_validation.png", width = 8.0, height = 5, res = 300, units = "in")
+png("figs/Fig3_validation.png", width = 9, height = 6, res = 300, units = "cm")
 validation_plot
 dev.off()
 

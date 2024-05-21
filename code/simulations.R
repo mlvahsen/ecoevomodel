@@ -40,6 +40,9 @@ predict_marsh(years = years, z_init = z_init, rs_int = rs_int, rs_int_opt = rs_i
               bmax = bmax, kr = kr, bg_tr = bg_tr, rho_o = rho_o) -> evo_plastic
 
 ## Make plots ####
+
+base_size_set = 10
+
 # Plot of trait change over time
 tibble(constant = basic$lnrs_store[2:101],
        plastic = plastic$lnrs_store[2:101],
@@ -47,11 +50,11 @@ tibble(constant = basic$lnrs_store[2:101],
        time = 1921:2020) %>%
   gather(key = type, value = rs, constant:`evo + plastic`) %>% 
   ggplot(aes(x = time, y = rs, group = type, color = type, label = type)) +
-  geom_textline(size = 4, hjust = 0.9, linewidth = 1.2) +
-  theme_bw(base_size = 14) +
+  geom_textline(size = 3, hjust = 0.9, linewidth = 1.2) +
+  theme_bw(base_size = base_size_set) +
   ylab("ln(root-to-shoot ratio)") +
   xlab("year") +
-  theme(legend.position = "none") +
+  theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_color_manual(values = set_colors) +
   scale_x_continuous(breaks = seq(1920,2020,length.out = 6))-> a
 
@@ -65,11 +68,11 @@ tibble(basic = (basic$dsdt_out[2:101] + basic$dodt_out[2:101])*10,
          basic:evo_plastic) %>%
   ggplot(aes(x = time, y = value, color = type)) +
   geom_line(linewidth = 1.2) +
-  theme_bw(base_size = 14) +
+  theme_bw(base_size = base_size_set) +
   theme(legend.position = "none") +
   ylab(expression(paste("accretion rate (mm ", yr^-1, ")"))) +
   xlab("year") +
-  theme(legend.position = "none") +
+  theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_color_manual(values = set_colors)+
   scale_x_continuous(breaks = seq(1920,2020,length.out = 6)) -> b
 
@@ -81,15 +84,15 @@ tibble(basic = basic$carbon[2:years]*1e4,
   gather(key = type, value = carbon, basic:evo_plastic) %>% 
   ggplot(aes(x = time, y = carbon, group = type, color = type)) +
   geom_line(linewidth = 1.2) +
-  ylab(expression(paste("carbon accum. rate (g C ", m^-2, yr^-1,")"))) +
-  theme_bw(base_size = 14) +
+  ylab(expression(paste("C accum. rate (g C ", m^-2, yr^-1,")"))) +
+  theme_bw(base_size = base_size_set) +
   xlab("year") +
-  theme(legend.position = "none") +
+  theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_color_manual(values = set_colors)+
   scale_x_continuous(breaks = seq(1920,2020,length.out = 6))-> c
 
-png("figs/Fig2_simulations.png", height = 3.5, width = 11.5, units = "in", res = 300)
-(a + b + c) + plot_annotation(tag_levels = "a") & theme(plot.margin = margin(3,3,3,3)) 
+png("figs/Fig2_simulations.png", height = 11, width = 11, units = "cm", res = 300)
+a / ( b + c) + plot_annotation(tag_levels = "a") & theme(plot.margin = margin(3,3,3,3)) 
 dev.off()
 
 ## Calculate effect sizes ####

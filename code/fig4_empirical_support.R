@@ -26,7 +26,7 @@ bg_rs %>%
 # Create ln(root:shoot) column
 bg_rs$ln_rs <- log(bg_rs$root_shoot)
 
-png("Figs/Fig4_empirical.png", height = 5.9, width = 5.9, units = "in", res = 300)
+png("Figs/Fig4_empirical.png", height = 11, width = 11, units = "cm", res = 300)
 bg_rs %>% 
   mutate(`age cohort` = case_when(age == "ancestral" ~ "ancestral (1895-1947)",
                                   T ~ "descendant (2003-2016)")) %>% 
@@ -36,8 +36,11 @@ bg_rs %>%
   theme_bw(base_size = 14) +
   ylab("ln(root-to-shoot ratio)") +
   xlab("E* (relative tidal elevation)") +
-  theme(legend.position = c(0.25, 0.875),
-        legend.box.background = element_rect(colour = "black")) +
+  theme(legend.position = c(0.70, 0.13),
+        legend.box.background = element_rect(colour = "black"),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 10, face = "bold"),
+        legend.margin = margin(1,1,1,1)) +
   scale_color_manual(values = c("#E69F00","#009E73")) 
 dev.off()
 
