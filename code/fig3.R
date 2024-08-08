@@ -1,6 +1,9 @@
 # Figure 3 - Comparison of scenario predictions against descendant empirical
 # data
 
+# Load libraries
+library(tidyverse)
+
 # Read in all Blue Genes experimental data. This is the derived dataset that has
 # already been cleaned and formatted.
 bg_full <- read_csv(url("https://raw.githubusercontent.com/mlvahsen/BlueGenes/main/derived_data/All_Trait_Data.csv"))

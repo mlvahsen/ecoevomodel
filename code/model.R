@@ -81,6 +81,7 @@ predict_marsh <- function(years, z_init, rs_int, rs_slope, rs_int_opt, rs_slope_
     biomass <- a*zstar + b*zstar^2 + c
     if(biomass < 0) biomass <- 0
     
+    # If no plasticity, keep at the initial zstar for the whole simulation
     if(no_plastic == TRUE){
       lnrs_store[t+1] <- rs_int + rs_slope*zstar_set
     }else{

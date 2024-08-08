@@ -1,3 +1,7 @@
+# This code runs the model simulations for the constant, plastic, and plastic +
+# evo scenarios. It also creates Figure 2 and calculate all percent changes
+# reported in the paper.
+
 source("code/set_parameters.R")
 source("code/model.R")
 
@@ -141,5 +145,9 @@ tibble(scenario = c("constant", "plastic", "evo_plastic"),
        zstar_2020 = c(basic$zstar_vec[100],
                       plastic$zstar_vec[100],
                       evo_plastic$zstar_vec[100])) -> preds_2020
+
+# Root-to-shoot values at end of scenario
+preds_2020 %>% 
+  mutate(rs_2020 = exp(lnrs_2020))
 
 write_rds(preds_2020, "outputs/preds_2020.rds")

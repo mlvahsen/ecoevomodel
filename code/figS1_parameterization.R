@@ -1,6 +1,13 @@
 # Figure S1 - Plot for depicting how plasticity and environmental sensitivity of
 # selection parameters were derived
 
+# Load libraries
+library(tidyverse); library(geomtextpath)
+
+# Reading in NOAA tide gauge data and setting marsh elevation for 2019 Annapolis
+msl_2019 <- mean(c(6.2, 1.8, 8.5, 14.2, 25.7, 22, 23.1, 26.7, 32.1, 34.3, 14.3, 5.8))
+mhw_2019 <- mean(c(22.6, 16, 22.5, 30.2, 40.1, 36.2, 38.2, 41.7, 48.1, 50.9, 31.8, 20.3))
+
 # Read in all Blue Genes experimental data. This is the derived dataset that has
 # already been cleaned and formatted.
 bg_full <- read_csv(url("https://raw.githubusercontent.com/mlvahsen/BlueGenes/main/derived_data/All_Trait_Data.csv"))
@@ -37,7 +44,7 @@ bg_rs %>%
   xlab("E* (relative tidal elevation)") +
   theme_bw(base_size = 14) +
   ylim(-1, 1.6) +
-  xlim(-0.1473627,2.3844481)-> a
+  xlim(-0.1473627,2.3844481)-> b
 
 # Split data into four different groups and fit quadratic regressions for each
 quad_mod1 <- lm(agb_scam ~ ln_rs + I(ln_rs^2), data = bg_rs %>% filter(level == 1))
@@ -89,7 +96,7 @@ bg_rs %>%
   annotate("label", x= 1.20, y = 6.5, label = "least flooded", size = 3.5, 
            fill = "#bdc9e1", fontface = "bold", color = "white") +
   annotate("label", x= -0.5, y = 7.5, label = "most flooded", size = 3.5,
-           fill = "#045a8d", fontface = "bold", color = "white") -> b
+           fill = "#045a8d", fontface = "bold", color = "white") -> c
   
 
 # Plot optimal phenotype as a function of elevation
@@ -107,7 +114,7 @@ optimal_df %>%
   xlab("E* (relative tidal elevation)") +
   theme(plot.margin = unit(c(0,0,0,0), "cm")) + 
   ylim(-1, 1.6) +
-  xlim(-0.1473627,2.3844481)-> c
+  xlim(-0.1473627,2.3844481)-> d
 
 # Optimal and mean reaction norm plot
 tibble(lnrs = c(predict(lnrs_mod_optimal, newdata = data.frame(z_star = seq(-0.1473627,2.3844481,0.01))),
@@ -123,10 +130,10 @@ tibble(lnrs = c(predict(lnrs_mod_optimal, newdata = data.frame(z_star = seq(-0.1
   geom_textvline(aes(xintercept = zstar_init, label = "starting elevation"),
                  hjust = 0.5, color = "black", linetype = "dotted") +
   scale_color_manual(values = c("black", "gray45")) +
-  xlim(-0.1473627,2.3844481)-> d
+  xlim(-0.1473627,2.3844481)-> a
 
 png("Figs/FigS1_parameterization_plot.png", height = 8.5, width = 9, units = "in", res = 300)
-(d + a + plot_layout(widths = c(2,1))) / (b + c + plot_layout(widths = c(2,1))) +
+(a + b + plot_layout(widths = c(2,1))) / (c + d + plot_layout(widths = c(2,1))) +
   plot_layout(heights = c(3,2)) +
   plot_annotation(tag_levels = "a")
 dev.off()

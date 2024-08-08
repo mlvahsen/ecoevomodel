@@ -1,5 +1,8 @@
 # Figure S2 = plot organic and sediment accretion rates over time for each scenario
 
+# Load libraries
+library(tidyverse)
+
 # Read in simulation output data
 simulation_preds <- read_rds("outputs/simulation_preds.rds")
 

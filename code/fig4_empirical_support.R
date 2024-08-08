@@ -1,5 +1,8 @@
 # Figure 4 - empirical support of differences in slopes across cohorts 
 
+# Load libraries
+library(tidyverse)
+
 # Read in all Blue Genes experimental data. This is the derived dataset that has
 # already been cleaned and formatted.
 bg_full <- read_csv(url("https://raw.githubusercontent.com/mlvahsen/BlueGenes/main/derived_data/All_Trait_Data.csv"))
