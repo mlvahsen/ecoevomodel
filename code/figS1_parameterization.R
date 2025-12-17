@@ -4,6 +4,12 @@
 # Load libraries
 library(tidyverse); library(geomtextpath)
 
+# Set parameter values
+source("code/set_parameters.R")
+
+# Set plot base_size 
+base_size_set <- 12
+
 # Reading in NOAA tide gauge data and setting marsh elevation for 2019 Annapolis
 msl_2019 <- mean(c(6.2, 1.8, 8.5, 14.2, 25.7, 22, 23.1, 26.7, 32.1, 34.3, 14.3, 5.8))
 mhw_2019 <- mean(c(22.6, 16, 22.5, 30.2, 40.1, 36.2, 38.2, 41.7, 48.1, 50.9, 31.8, 20.3))
@@ -32,19 +38,24 @@ bg_sub %>%
 bg_rs %>% 
   mutate(z_star = (elevation*100 - msl_2019) / (mhw_2019 - msl_2019)) -> bg_rs
 
+# Get minimum and maximum z* for xlim for plotting
+xmin <- min(bg_rs$z_star)
+xmax <- max(bg_rs$z_star)
+
 # Create ln(root:shoot) column
 bg_rs$ln_rs <- log(bg_rs$root_shoot)
 
 # Plot up plasticity
 bg_rs %>% 
   ggplot(aes(x = z_star, y = ln_rs)) +
-  geom_point(alpha = 0.3) +
-  geom_textsmooth(method = "lm", color = "black", se = F, label = "mean", size = 5, linewidth = 1.2) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(method = "lm", color = "#8F61DB", se = F, linewidth = 1.2) +
   ylab("ln(root-to-shoot ratio)") +
   xlab("E* (relative tidal elevation)") +
-  theme_bw(base_size = 14) +
+  theme_classic(base_size = base_size_set) +
   ylim(-1, 1.6) +
-  xlim(-0.1473627,2.3844481)-> b
+  xlim(xmin, xmax) +
+  annotate(geom = "text", x = 0.80, y = 1.5, label = "mean phenotype", color = "#8F61DB")-> b
 
 # Split data into four different groups and fit quadratic regressions for each
 quad_mod1 <- lm(agb_scam ~ ln_rs + I(ln_rs^2), data = bg_rs %>% filter(level == 1))
@@ -82,21 +93,21 @@ lnrs_opt4 <- predict(quad_mod4, newdata = data.frame(ln_rs = optimal_phenotypes[
 
 bg_rs %>% 
   ggplot(aes(x = ln_rs, y = agb_scam, color = flooding_level)) +
-  geom_point(alpha = 0.8, size = 1.5) +
+  geom_point(alpha = 0.5, size = 1.5) +
   geom_smooth(aes(color = flooding_level), method = "lm", formula = y ~ x + I(x^2), se = F, linewidth = 1.5) +
   xlab("ln(root-to-shoot ratio)") +
-  ylab(paste("aboveground biomass (fitness)")) +
-  annotate(geom = "point", x = optimal_phenotypes[1], y = lnrs_opt1, size = 5, color = "gold") +
-  annotate(geom = "point", x = optimal_phenotypes[2], y = lnrs_opt2, size = 5, color = "gold") +
-  annotate(geom = "point", x = optimal_phenotypes[3], y = lnrs_opt3, size = 5, color = "gold") +
-  annotate(geom = "point", x = optimal_phenotypes[4], y = lnrs_opt4, size = 5, color = "gold") +
-  theme_bw(base_size = 14) + 
+  ylab(paste("aboveground biomass\n(fitness)")) +
+  annotate(geom = "point", x = optimal_phenotypes[1], y = lnrs_opt1, size = 5, color = "#bdc9e1") +
+  annotate(geom = "point", x = optimal_phenotypes[2], y = lnrs_opt2, size = 5, color = "#74a9cf") +
+  annotate(geom = "point", x = optimal_phenotypes[3], y = lnrs_opt3, size = 5, color = "#2b8cbe") +
+  annotate(geom = "point", x = optimal_phenotypes[4], y = lnrs_opt4, size = 5, color = "#045a8d") +
+  theme_classic(base_size = base_size_set) + 
   scale_color_manual(values = c("#bdc9e1","#74a9cf", "#2b8cbe", "#045a8d")) +
-  theme(legend.position = "none") +
-  annotate("label", x= 1.20, y = 6.5, label = "least flooded", size = 3.5, 
-           fill = "#bdc9e1", fontface = "bold", color = "white") +
-  annotate("label", x= -0.5, y = 7.5, label = "most flooded", size = 3.5,
-           fill = "#045a8d", fontface = "bold", color = "white") -> c
+  theme(legend.position = "none") -> c
+  # annotate("label", x= 1.20, y = 6.5, label = "least\nflooded", size = 3, 
+  #          fill = "#bdc9e1", fontface = "bold", color = "white") +
+  # annotate("label", x= -0.60, y = 7.5, label = "most\nflooded", size = 3,
+  #          fill = "#045a8d", fontface = "bold", color = "white") -> c
   
 
 # Plot optimal phenotype as a function of elevation
@@ -106,34 +117,37 @@ tibble(z_star = bg_rs %>% group_by(level) %>%
 
 optimal_df %>% 
   ggplot(aes(x = z_star, y = ln_rs)) + 
-  geom_point(size = 5, color = "gold") +
-  geom_textsmooth(method = "lm", se = F, color = "gray45",
-                  label = "optimal", size = 5, linewidth = 1.2) +
-  theme_bw(base_size = 14) + 
+  geom_point(size = 5, color = c("#bdc9e1","#74a9cf", "#2b8cbe", "#045a8d")) +
+  geom_smooth(method = "lm", se = F, color = "#FC90AF", linewidth = 1.2) +
+  theme_classic(base_size = base_size_set) + 
   ylab("ln(root-to-shoot ratio)") +
   xlab("E* (relative tidal elevation)") +
   theme(plot.margin = unit(c(0,0,0,0), "cm")) + 
   ylim(-1, 1.6) +
-  xlim(-0.1473627,2.3844481)-> d
+  xlim(xmin, xmax) +
+  annotate(geom = "text", x = 0.85, y = 1.5, label = "optimal phenotype", color = "#FC90AF")-> d
 
 # Optimal and mean reaction norm plot
-tibble(lnrs = c(predict(lnrs_mod_optimal, newdata = data.frame(z_star = seq(-0.1473627,2.3844481,0.01))),
-                predict(lnrs_mod, newdata = data.frame(z_star = seq(-0.1473627,2.3844481,0.01)))),
-       z_star = rep(seq(-0.1473627,2.3844481,0.01),2),
-       phenotype = rep(c("optimal phenotype", "mean phenotype"), each = length(seq(-0.1473627,2.3844481,0.01)))) %>% 
+tibble(lnrs = c(predict(lnrs_mod_optimal, newdata = data.frame(z_star = seq(xmin,xmax,0.01))),
+                predict(lnrs_mod, newdata = data.frame(z_star = seq(xmin,xmax,0.01)))),
+       z_star = rep(seq(xmin,xmax,0.01),2),
+       phenotype = rep(c("optimal phenotype", "mean phenotype"), each = length(seq(xmin,xmax,0.01)))) %>% 
   ggplot(aes(x = z_star, y =lnrs, color = phenotype)) +
-  geom_textline(aes(label = phenotype), hjust = 0.25, linewidth = 1.2) +
+  geom_textline(aes(label = phenotype), hjust = 0.25, linewidth = 1.5, size = 5, fontface = "bold") +
   ylab("ln(root-to-shoot ratio)") +
   xlab("E* (relative tidal elevation)") +
-  theme_bw(base_size = 14) +
+  theme_classic(base_size = base_size_set) +
   theme(legend.position = "none") +
   geom_textvline(aes(xintercept = zstar_init, label = "starting elevation"),
-                 hjust = 0.5, color = "black", linetype = "dotted") +
-  scale_color_manual(values = c("black", "gray45")) +
-  xlim(-0.1473627,2.3844481)-> a
+                 hjust = 0.5, color = "black", linetype = "dotted", size = 4) +
+  scale_color_manual(values = c("#8F61DB", "#FC90AF")) +
+  xlim(xmin,xmax) -> a
 
-png("Figs/FigS1_parameterization_plot.png", height = 8.5, width = 9, units = "in", res = 300)
-(a + b + plot_layout(widths = c(2,1))) / (c + d + plot_layout(widths = c(2,1))) +
-  plot_layout(heights = c(3,2)) +
-  plot_annotation(tag_levels = "a")
+design <- "AAA
+           AAA
+           BCD"
+
+svg("Figs/Fig2_parameterization_plot.svg", height = 6, width = 8)
+a + b + c + d + plot_layout(design = design) +
+  plot_annotation(tag_levels = "a") & theme(plot.margin = unit(c(0,0.25,0,0.25), "cm"))
 dev.off()
